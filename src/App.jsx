@@ -1,42 +1,21 @@
-import React from 'react'
-import './App.css'
-import Navbar from "./Page1/Navbar"
-import { MdArrowOutward } from "react-icons/md";
-import SecondSection from './Page1/SecondSection';
-import LastPart from './Page1/LastPart';
+import React, { useState } from 'react'
 
 const App = () => {
+  const [num , setNum] = useState(0);
+
   return (
-    <div className='MainSection'>
-      <button>Home Page</button>
-      <h4>Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim tempore recusandae harum animi quas! Commodi, id?</h4>
-      <div className="WebPage">
-        <Navbar />    
-        <div className="Image">
-          <div className="middle">
-            <h3>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Laboriosam?</h3>
-            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Commodi deserunt saepe provident doloribus molestias? Dolore, vero. Inventore.</p>
-            <button>Start Your Own Journey</button>
-          </div>
-          <div className="bottom">
-            <div className="right">
-              <p>Lorem ipsum dolor sit amet consectetur adipisicing.</p>
-            </div>
-            <div className="left">
-              <ul>
-                <li>Some Thing <MdArrowOutward /></li>
-                <li>Some Thing <MdArrowOutward /></li>
-                <li>Some Thing <MdArrowOutward /></li>
-              </ul>
-            </div>
-          </div>
-        </div>
-        <SecondSection />
-        <br /><hr /><br />
-        <LastPart />
+    <div className='bg-zinc-800 w-screen h-screen flex flex-col items-center justify-center text-white gap-5'>
+      <h3>{num}</h3>
+      <div className='flex gap-2 '>
+        <button className='bg-amber-300 p-2 text-black font-semibold rounded active:scale-[0.95]' onClick={function(){
+          setNum(prev => prev+1)
+          
+        }} >Increse</button>
+        <button className='bg-amber-400 p-2 text-black font-semibold rounded active:scale-[0.95]' onClick={() => setNum(prev => prev-1)}>Decrese</button>
+        <button className='bg-amber-600 p-2 text-black font-semibold rounded active:scale-[0.95]' onClick={() =>setNum(prev => prev+5)}> Jump By 5</button>
       </div>
-    </div>  
+    </div>
   )
 }
 
-export default App;
+export default App
