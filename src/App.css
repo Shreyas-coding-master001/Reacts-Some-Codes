@@ -1,0 +1,23 @@
+@keyframes disable-visible {
+    from{
+        scale: 0;
+    }
+    to{
+        scale: 1;
+    }
+}
+
+
+.pokemon-name{
+    -webkit-text-stroke: 0.2rem blue;
+    font-weight: 800;
+    font-size: 3rem;
+}
+
+button{
+    cursor: pointer;
+}
+
+.design{
+    animation: disable-visible 0.5s;
+}

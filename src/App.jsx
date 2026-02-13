@@ -1,89 +1,106 @@
 import React, { useEffect, useState } from 'react'
+import "./App.css";
+import axios from 'axios';
+import Card from './components/Card';
 
 const App = () => {
-  const [username, setUsername] = useState("");
-  const [kisko, setKisko] = useState("");
-  const [Url, setUrl] = useState("");
-  const [Description, setDescription] = useState("")
-  const [users, setUser] = useState([]);
 
-  const handleSubmit = function(e){
-    e.preventDefault();
+  const [userPokemon, setuserPokemon] = useState(() => {
+    const storage = localStorage.getItem("userPokemons");
+    return storage ? JSON.parse(storage) : [];
+  });
+  const [isClicked, setisClicked] = useState(false);
+  const [ballClick, setballClick] = useState({});
+  const [BallClicked, setBallClicked] = useState(false)
+  const [apiData, setapiData] = useState([]);
 
-    setUser([...users,{username,kisko,Url,Description}]);
-    setKisko("");
-    setUrl("");
-    setDescription("");
-  }
+  useEffect(() => {
+    async function fetchData(){
+      const responces = await fetch("https://pokeapi.co/api/v2/pokemon");
+      if(!responces) console.error("Cannot Fetch");
 
-  const handleDelete = (idx) => {
-    let Users = [...users];
-
-    Users.splice(idx, 1);
+      const result = await responces.json();
+      setapiData(result.results);
+      
+    }
+    fetchData();  
     
-    setUser(Users);
+  },[]);
+
+  const handleBall = function(){
+    const random = Math.floor(Math.random() * 21);
+    const pokemon = apiData[random];
+    
+    console.log(pokemon?.name);
+    
+    axios.get(pokemon?.url)
+    .then(res => {
+      
+      setballClick(res.data)
+      setBallClicked(prev => true)
+    })
+    .catch(err => console.error(err));
   }
 
-  useEffect(function(){
-    console.log(users);
-  },[users])
+  const setPokemon = function(){
+    const updatedPokemons = [...userPokemon, ballClick];
+
+    localStorage.setItem(
+      "userPokemons",
+      JSON.stringify(updatedPokemons)
+    );  
+
+    setuserPokemon(updatedPokemons);
+    setBallClicked(prev=> false);
+    setisClicked(prev => false);
+  }
+
 
   return (
-  <div className='bg-zinc-800 w-screen h-screen'>
-    <form onSubmit={handleSubmit} className='flex items-center gap-5 py-5 flex-wrap'>
-      <input type="text"  value={username} placeholder='Enter your name....' 
-      onChange={(e)=>setUsername(e.target.value)} required 
-      className='bg-zinc-400 p-3 m-3 mt-5 rounded-2xl' />
-
-      <input type="text"  value={kisko} placeholder="Enter Your Domain" 
-      onChange={(e)=>setKisko(e.target.value)} 
-      className='bg-zinc-400 p-3 m-3 mt-5 rounded-2xl' />
-
-      <input type= "text" value={Url} placeholder='Enter Valid URL....' required className='bg-zinc-400 p-3 m-3 mt-5 rounded-2xl' onChange={(e) => setUrl(e.target.value)}
-      />
-
-      <input type= "text" value={Description} placeholder='Enter Description....' onChange={(e) => setDescription(e.target.value)} required 
-      className='bg-zinc-400 p-3 m-3 mt-5 rounded-2xl'/>
-
-      <button type='submit' className='active:scale-[0.95] p-3 border-2 border-solid border-zinc-100 rounded-2xl text-zinc-100 cursor-pointer hover:bg-white hover:text-black hover:font-semibold'>Submit</button>
-    </form>
-    <br /><hr className='text-white '/><br />
-
-    <div className='w-full flex gap-10 p-5 bg-zinc-800'>
-    {users.map(function(user, idx){
-      return(<div key={idx} className="bg-zinc-100 pt-5 pb-15 w-70 rounded-2xl p-4 flex flex-col items-center gap-1">
-        <img src={user.Url} alt="Profile Photo" 
-        className='rounded-full w-30 h-30 object-center object-cover' />
-
-        <h2 className='font-semibold text-2xl'>{user.username}</h2>
-        <h3 className ="text-gray-700">{user.kisko}</h3>
-
-        <p className='text-center'>{user.Description}</p>
-
-        <button className='bg-red-600 p-3 rounded-full text-white active:scale-95' onClick={function(){
-          handleDelete(idx);
-        }}
-        >Remove</button>
-      </div>)
-      
-    })}
-      
-      <div className="bg-zinc-100 pt-5 pb-15 w-70 rounded-2xl p-4 flex flex-col items-center gap-1">
-        <img src="https://plus.unsplash.com/premium_photo-1769131129186-1cd08437c42e?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Profile Photo" 
-        className='rounded-full w-30 h-30 object-center object-cover' />
-
-        <h2 className='font-semibold text-2xl'>Full Name</h2>
-        <h3 className ="text-gray-700">ML Engineering</h3>
-
-        <p className='text-center'>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Vitae, doloremque?</p>
-
-        <button className='bg-red-600 p-3 rounded-full text-white active:scale-95' onClick={function(){}}
-        >Remove</button>
+    <div className='bg-zinc-900 h-screen w-screen'>
+      <div className='border-b-2 border-amber-50 p-3 flex justify-between px-3'> 
+        <h1 className='pokemon-name text-amber-300 text-3xl '>Get your Pokemon?</h1>
+        <button onClick={() => {setisClicked(prev=>!prev)}}
+        className='border-2 border-white p-2 rounded-2xl text-white active:scale-95 hover:bg-zinc-200 hover:text-black'>Get Pokemon</button>
       </div>
+
+      <h2 className='text-amber-400 pokemon-name '>Your Caught Pokemons : </h2>
+      <div className='flex gap-3 flex-nowrap h-3/4 mt-5 mx-5'>
+      
+        {userPokemon?.map(function(pokemon, idx){
+            return <div key={idx} >
+              <Card pokemon={pokemon}/>
+            </div>        
+        })}
+      </div>
+
+      <div onClick={handleBall}
+      className={isClicked ? 
+        "design absolute w-60 h-60 top-1/2 left-1/2 translate-[-50%] cursor-pointer": "hidden"}>
+        <div className='relative w-full h-full  rounded-full overflow-hidden bg-zinc-200 animate-bounce pointer-events-none'>
+          <div className="absolute top-0 w-full bg-red-700 h-1/2 pointer-events-none"></div>
+
+          <div className="absolute top-1/2 left-0 w-full h-4 bg-black -translate-y-1/2 pointer-events-none"></div>
+
+          <div className="absolute top-1/2 left-1/2 w-20 h-20 bg-black rounded-full 
+                      -translate-x-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none">
+
+            <div className="w-12 h-12 bg-white rounded-full pointer-events-none"></div>
+        </div>
+        </div>
+      </div>
+
+      {BallClicked? 
+      <div className='relative z-20 flex justify-center items-center h-2/3'>
+      <div className='absolute top-[-120%] flex justify-between items-start w-1/4 h-full'>
+        <Card pokemon = {ballClick}/>
+        <button onClick={() => setPokemon()}
+        className='right-3 font-bold text-2xl text-white bg-red-700 p-4 rounded-2xl active:scale-95'>X</button>
+      </div>
+      </div>: <></>}
       
     </div>
-    
-  </div>)
+  )
 }
 
-export default App
+export default App;
